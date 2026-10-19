@@ -1,20 +1,51 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5174:5173"
+    environment:
+      VITE_API_PROXY_TARGET: http://backend:3002
+    volumes:
+      - ./frontend/src:/src/src
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3002"
+    environment:
+      DB_DSN: root:${MYSQL_ROOT_PASSWORD:-root}@tcp(mysql:3306)/${MYSQL_DATABASE:-PH_vocab}?parseTime=true
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: on-failure
+
   mysql:
     image: mysql:8.0
-
     container_name: PH_mysql
-
-    restart: always
-
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: PH_vocab
-    
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-PH_vocab}
     ports:
       - "3308:3306"
-    
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -uroot -p\"$${MYSQL_ROOT_PASSWORD}\" --silent",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
 volumes:
   mysql_data:

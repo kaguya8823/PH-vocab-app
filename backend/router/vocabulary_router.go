@@ -13,5 +13,9 @@ func NewVocabularyRouter(vocabularyHandler *handler.VocabularyHandler) *mux.Rout
 		"/api/vocabularies",
 		vocabularyHandler.GetVocabularies,
 	).Methods(http.MethodGet)
+	router.HandleFunc(
+		"/api/vocabularies",
+		vocabularyHandler.CreateVocabulary,
+	).Methods(http.MethodPost)
 	return router
 }

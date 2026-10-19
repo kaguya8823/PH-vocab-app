@@ -1,8 +1,7 @@
 import axios from 'axios';
 import type { CreateVocabularyInput, Vocabulary } from '../types/vocabulary';
 
-const API_URL =
-    'http://localhost:3003/api/vocabularies';
+const API_URL = '/api/vocabularies';
 
 export const fetchVocabularies = async (): Promise<Vocabulary[]> => {
     const response = await axios.get<Vocabulary[]>(API_URL);
