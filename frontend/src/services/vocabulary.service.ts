@@ -1,27 +1,17 @@
 import axios from 'axios';
+import type { CreateVocabularyInput, Vocabulary } from '../types/vocabulary';
 
 const API_URL =
     'http://localhost:3003/api/vocabularies';
 
-export const fetchVocabularies = async () => {
-
-    const response =
-        await axios.get(API_URL);
-    
+export const fetchVocabularies = async (): Promise<Vocabulary[]> => {
+    const response = await axios.get<Vocabulary[]>(API_URL);
     return response.data;
 };
 
 export const createVocabulary = async (
-    data: {
-        word:             string;
-        meaning:          string;
-        exampleSentence?: string;
-        partOfSpeech:     string;
-    }
-) => {
-
-    const response =
-        await axios.post(API_URL, data);
-
+    data: CreateVocabularyInput,
+): Promise<Vocabulary> => {
+    const response = await axios.post<Vocabulary>(API_URL, data);
     return response.data;
 };

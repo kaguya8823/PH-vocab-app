@@ -1,12 +1,17 @@
 export type Vocabulary = {
-    id:               number;
+    id:               string;
     word:             string;
     meaning:          string;
     exampleSentence?: string;
-    paerOfSpeech:     string;
-
+    partOfSpeech:     string;
+    comment:          string;
     createdAt:        string;
-    updatedAt:        string;
-}
+};
 
-// ここには録音した音声を付けたい
+export type CreateVocabularyInput = {
+    word: string;
+    meaning: string;
+    exampleSentence?: string;
+    partOfSpeech: string;
+    comment: string;
+};

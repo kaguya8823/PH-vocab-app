@@ -6,6 +6,8 @@ type Vocabulary struct {
 	Meaning         string `json:"meaning"`
 	ExampleSentence string `json:"exampleSentence"`
 	PartOfSpeech    string `json:"partOfSpeech"`
+	Comment         string `json:"comment"`
+	CreatedAt       string `json:"createdAt"`
 }
 
 // ここにはサンプルボイスを入れたい

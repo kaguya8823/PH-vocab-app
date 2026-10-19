@@ -6,11 +6,13 @@ import (
 )
 
 type VocabularyUseCase struct {
-	repository VocabularyRepository
+	repository repository.VocabularyRepository
 }
 
-func (u *VocabularyUseCase) GetVocabularies()
-	([]domain.Vocabulary, error) {
+func NewVocabularyUseCase(repository repository.VocabularyRepository) *VocabularyUseCase {
+	return &VocabularyUseCase{repository: repository}
+}
 
-		return u.repository.FindAll()
-	}
+func (u *VocabularyUseCase) GetVocabularies() ([]domain.Vocabulary, error) {
+	return u.repository.FindAll()
+}
