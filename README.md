@@ -17,3 +17,12 @@ npm install
 npm run dev で起動
 
 npm install axios
+
+## mysql
+docker exec -it PH_mysql mysql -uroot -p PH_vocab
+
+mysql の見方
+https://claude.ai/share/4288967e-b54e-4b52-8fa3-6c82d62d7cdf
+
+## ポートについて
+必要があれば、ポートの追加で5174を手動でしなければならない。
