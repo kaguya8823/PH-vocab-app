@@ -16,7 +16,7 @@ export const createVocabulary = async (
 };
 
 export const updateVocabulary = async (
-    id: number,
+    id: string,
     data: {
         word:             string;
         meaning:          string;

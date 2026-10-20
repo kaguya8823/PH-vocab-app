@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
     fetchVocabularies,
-    deleteVocabulary,
 } from '../services/vocabulary.service';
 
 import type { Vocabulary } from '../types/vocabulary';
 
 import VocabularyForm from '../components/vocabulary.form';
+import VocabularyEditForm from '../components/vocabularyEditForm';
 
 const VocabularyPage = () => {
     // 単語一覧の状態
@@ -57,9 +57,6 @@ const VocabularyPage = () => {
     // 編集・削除管理
     const [editingVocabulary, setEditingVocabulary] =
         useState<Vocabulary | null>(null);
-    const [deletingVocabularyId, setDeletingVocabularyId] =
-        useState<number | null>(null);
-    const [actionError, setActionError] = useState('');
      
     // ソート条件の状態
     const [sortOrder, setSortOrder] = useState('word-asc');
@@ -118,25 +115,6 @@ const VocabularyPage = () => {
       </select>
       </div>
 
-        {/* 編集・削除フォーム */}
-        <hr />
-        <button
-            type='button'
-            onClick={() => {
-                 // 未実装
-            }}
-        >
-            編集
-        </button>
-
-        <button
-            type='button'
-            onClick={() => {
-                 // 未実装
-            }}>
-            削除
-        </button>
-
         {/* 登録済み単語一覧 */}
       <h2>登録済みの単語</h2>
 
@@ -157,6 +135,23 @@ const VocabularyPage = () => {
           )}
           <p>品詞：{vocabulary.partOfSpeech}</p>
           <p>コメント：{vocabulary.comment || 'なし'}</p>
+          {editingVocabulary?.id === vocabulary.id ? (
+            <VocabularyEditForm
+              vocabulary={editingVocabulary}
+              onUpdated={async () => {
+                await loadVocabularies();
+                setEditingVocabulary(null);
+              }}
+              onCancel={() => setEditingVocabulary(null)}
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setEditingVocabulary(vocabulary)}
+            >
+              編集
+            </button>
+          )}
         </article>
       ))}
 

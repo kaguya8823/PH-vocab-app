@@ -9,6 +9,7 @@ import (
 type VocabularyRepository interface {
 	FindAll() ([]domain.Vocabulary, error)
 	Create(domain.Vocabulary) (domain.Vocabulary, error)
+	Update(string, domain.Vocabulary) (bool, error)
 }
 
 type vocabularyRepository struct {
@@ -102,4 +103,36 @@ func (r *vocabularyRepository) Create(vocabulary domain.Vocabulary) (domain.Voca
 	}
 	vocabulary.ID = strconv.FormatInt(id, 10)
 	return vocabulary, nil
+}
+
+func (r *vocabularyRepository) Update(id string, vocabulary domain.Vocabulary) (bool, error) {
+	result, err := r.db.Exec(`
+		UPDATE vocabularies
+		SET word = ?, meaning = ?, example_sentence = ?, part_of_speech = ?, comment = ?
+		WHERE id = ?
+	`,
+		vocabulary.Word,
+		vocabulary.Meaning,
+		vocabulary.ExampleSentence,
+		vocabulary.PartOfSpeech,
+		vocabulary.Comment,
+		id,
+	)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	if rowsAffected > 0 {
+		return true, nil
+	}
+
+	var exists bool
+	if err := r.db.QueryRow("SELECT EXISTS(SELECT 1 FROM vocabularies WHERE id = ?)", id).Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
 }

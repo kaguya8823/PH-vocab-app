@@ -26,3 +26,14 @@ func (u *VocabularyUseCase) CreateVocabulary(input domain.CreateVocabularyInput)
 		Comment:         input.Comment,
 	})
 }
+
+func (u *VocabularyUseCase) UpdateVocabulary(id string, input domain.UpdateVocabularyInput) (bool, error) {
+	return u.repository.Update(id, domain.Vocabulary{
+		ID:              id,
+		Word:            input.Word,
+		Meaning:         input.Meaning,
+		ExampleSentence: input.ExampleSentence,
+		PartOfSpeech:    input.PartOfSpeech,
+		Comment:         input.Comment,
+	})
+}

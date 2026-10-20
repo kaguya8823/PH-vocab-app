@@ -18,4 +18,12 @@ type CreateVocabularyInput struct {
 	Comment         string `json:"comment"`
 }
 
+type UpdateVocabularyInput struct {
+	Word            string `json:"word"`
+	Meaning         string `json:"meaning"`
+	ExampleSentence string `json:"exampleSentence"`
+	PartOfSpeech    string `json:"partOfSpeech"`
+	Comment         string `json:"comment"`
+}
+
 // ここにはサンプルボイスを入れたい
