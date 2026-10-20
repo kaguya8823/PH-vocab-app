@@ -84,13 +84,6 @@ const VocabularyPage = () => {
 
       <h2>登録済みの単語</h2>
 
-      <input
-        type="search"
-        placeholder="英単語・日本語訳・例文で検索"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
-
       {loading && <p>読み込み中...</p>}
       {error && <p role="alert">{error}</p>}
 
@@ -110,15 +103,25 @@ const VocabularyPage = () => {
         </article>
       ))}
 
+      <div style={{border:"1px solid blue", width:"300px", margin:"10px auto", }}>
+      <input
+        type="search"
+        placeholder="英単語・日本語訳・例文で検索"
+        style={{width:"250px", padding:"10px", margin:"10px 0", fontSize:"15px"}}
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+      />
       <select
         value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value)}
+        onChange={(e) => setSortOrder(e.target.value)
+        }
         >
         <option value="word-asc">英単語 A → Z</option>
         <option value="word-desc">英単語 Z → A</option>
         <option value="newest">登録日が新しい順</option>
         <option value="oldest">登録日が古い順</option>
       </select>
+      </div>
     </main>
     );
 };
