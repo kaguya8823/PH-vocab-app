@@ -77,8 +77,8 @@ const VocabularyPage = () => {
     });
 
     return (
-        <main>
-      <h1>英単語帳</h1>
+        <main style={{ border:"1px solid red"}}>
+      <h1 style={{fontSize:"30px", backgroundColor:"green", borderRadius:"10px", width:"250px", margin:"20px auto", padding:"10px 0", color:"white", fontWeight:"bold"}}>英単語帳</h1>
 
       <VocabularyForm onCreated={loadVocabularies} />
 

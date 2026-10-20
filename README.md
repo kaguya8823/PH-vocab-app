@@ -26,3 +26,8 @@ https://claude.ai/share/4288967e-b54e-4b52-8fa3-6c82d62d7cdf
 
 ## ポートについて
 必要があれば、ポートの追加で5174を手動でしなければならない。
+
+## docker 起動と停止
+起動：docker compose up -d
+
+停止：docker compose down -v

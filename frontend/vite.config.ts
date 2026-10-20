@@ -7,8 +7,8 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      tailwindcss(),
       react(),
-      tailwindcss,
     ],
     server: {
       host: '0.0.0.0',
