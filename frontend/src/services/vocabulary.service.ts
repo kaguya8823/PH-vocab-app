@@ -14,3 +14,26 @@ export const createVocabulary = async (
     const response = await axios.post<Vocabulary>(API_URL, data);
     return response.data;
 };
+
+export const updateVocabulary = async (
+    id: number,
+    data: {
+        word:             string;
+        meaning:          string;
+        exampleSentence?: string;
+        partOfSpeech:     string;
+        comment:          string;
+    }
+) => {
+    const response = await axios.put(
+        `${API_URL}/${id}`,
+        data
+    );
+
+    return response.data;
+}
+
+export const deleteVocabulary = async (id: number) => {
+    const response = await axios.delete(`${API_URL}/${id}`);
+    return response.data;
+}

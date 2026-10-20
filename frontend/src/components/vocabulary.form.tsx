@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from "react";
-
+import { useState } from "react";
+import type {SubmitEvent} from "react"
 import { createVocabulary } from "../services/vocabulary.service";
 
 type Props = {
@@ -21,7 +21,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
 
     const [submitting, setSubmitting] = useState(false);
 
-    const submitHandler = async (e: FormEvent<HTMLFormElement>) => {
+    const submitHandler = async (e: SubmitEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError('');
 
@@ -55,6 +55,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
     };
 
     return (
+        <div style={{border:"1px solid purple"}}>
         <form onSubmit={submitHandler}>
             <h2>単語を登録</h2>
 
@@ -98,6 +99,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
                     <option value="pronoun">代名詞</option>
                     <option value="conjunction">接続詞</option>
                     <option value="interjection">間投詞</option>
+                    <option value="enclitic">小辞</option>
                 </select>
             </label>
 
@@ -115,6 +117,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
                 {submitting ? '登録中・・・' : '登録'}
              </button>
         </form>
+        </div>
     );
 };
 

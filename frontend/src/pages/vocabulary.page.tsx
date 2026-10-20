@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import {
-    fetchVocabularies
+    fetchVocabularies,
+    deleteVocabulary,
 } from '../services/vocabulary.service';
 
 import type { Vocabulary } from '../types/vocabulary';
@@ -9,11 +10,15 @@ import type { Vocabulary } from '../types/vocabulary';
 import VocabularyForm from '../components/vocabulary.form';
 
 const VocabularyPage = () => {
+    // 単語一覧の状態
     const [vocabularies, setVocabularies] = useState<Vocabulary[]>([]);
+    // 読み込み・エラーの状態
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    // 検索キーワードの状態
     const [keyword, setKeyword] = useState('');
 
+    // APIから単語一覧を取得
     const loadVocabularies = useCallback(async () => {
         try {
             const data = await fetchVocabularies();
@@ -49,6 +54,14 @@ const VocabularyPage = () => {
         };
     }, []);
 
+    // 編集・削除管理
+    const [editingVocabulary, setEditingVocabulary] =
+        useState<Vocabulary | null>(null);
+    const [deletingVocabularyId, setDeletingVocabularyId] =
+        useState<number | null>(null);
+    const [actionError, setActionError] = useState('');
+     
+    // ソート条件の状態
     const [sortOrder, setSortOrder] = useState('word-asc');
 
     const searchText = keyword.trim().toLowerCase();
@@ -80,8 +93,51 @@ const VocabularyPage = () => {
         <main style={{ border:"1px solid red"}}>
       <h1 style={{fontSize:"30px", backgroundColor:"green", borderRadius:"10px", width:"250px", margin:"20px auto", padding:"10px 0", color:"white", fontWeight:"bold"}}>英単語帳</h1>
 
-      <VocabularyForm onCreated={loadVocabularies} />
+        {/* 単語登録フォーム */}
+        <VocabularyForm onCreated={loadVocabularies} />
 
+     {/* 検索・ソートフォーム */}   
+    <div style={{border:"1px solid blue", width:"350px", margin:"10px auto", }}>
+      <input
+        type="search"
+        placeholder="キーワードで検索"
+        style={{width:"330px", padding:"10px", margin:"10px 0", fontSize:"15px"}}
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+      />
+      <select
+        value={sortOrder}
+        style={{padding:"10px", margin:"10px 0", }}
+        onChange={(e) => setSortOrder(e.target.value)
+        }
+        >
+        <option value="word-asc">英単語 A → Z</option>
+        <option value="word-desc">英単語 Z → A</option>
+        <option value="newest">登録日が新しい順</option>
+        <option value="oldest">登録日が古い順</option>
+      </select>
+      </div>
+
+        {/* 編集・削除フォーム */}
+        <hr />
+        <button
+            type='button'
+            onClick={() => {
+                 // 未実装
+            }}
+        >
+            編集
+        </button>
+
+        <button
+            type='button'
+            onClick={() => {
+                 // 未実装
+            }}>
+            削除
+        </button>
+
+        {/* 登録済み単語一覧 */}
       <h2>登録済みの単語</h2>
 
       {loading && <p>読み込み中...</p>}
@@ -92,7 +148,8 @@ const VocabularyPage = () => {
       )}
 
       {sortedVocabularies.map((vocabulary) => (
-        <article key={vocabulary.id}>
+        <article
+        key={vocabulary.id}>
           <h3>{vocabulary.word}</h3>
           <p>{vocabulary.meaning}</p>
           {vocabulary.exampleSentence && (
@@ -103,25 +160,7 @@ const VocabularyPage = () => {
         </article>
       ))}
 
-      <div style={{border:"1px solid blue", width:"300px", margin:"10px auto", }}>
-      <input
-        type="search"
-        placeholder="英単語・日本語訳・例文で検索"
-        style={{width:"250px", padding:"10px", margin:"10px 0", fontSize:"15px"}}
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
-      />
-      <select
-        value={sortOrder}
-        onChange={(e) => setSortOrder(e.target.value)
-        }
-        >
-        <option value="word-asc">英単語 A → Z</option>
-        <option value="word-desc">英単語 Z → A</option>
-        <option value="newest">登録日が新しい順</option>
-        <option value="oldest">登録日が古い順</option>
-      </select>
-      </div>
+     
     </main>
     );
 };
