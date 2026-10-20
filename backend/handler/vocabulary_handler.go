@@ -13,6 +13,7 @@ type vocabularyUseCase interface {
 	GetVocabularies() ([]domain.Vocabulary, error)
 	CreateVocabulary(domain.CreateVocabularyInput) (domain.Vocabulary, error)
 	UpdateVocabulary(string, domain.UpdateVocabularyInput) (bool, error)
+	DeleteVocabulary(string) (bool, error)
 }
 
 type VocabularyHandler struct {
@@ -101,6 +102,28 @@ func (h *VocabularyHandler) UpdateVocabulary(
 		return
 	}
 	if !updated {
+		http.Error(w, "Vocabulary not found", http.StatusNotFound)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *VocabularyHandler) DeleteVocabulary(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id := mux.Vars(r)["id"]
+	if numericID, err := strconv.ParseUint(id, 10, 64); err != nil || numericID == 0 {
+		http.Error(w, "Invalid vocabulary ID", http.StatusBadRequest)
+		return
+	}
+
+	deleted, err := h.useCase.DeleteVocabulary(id)
+	if err != nil {
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+	if !deleted {
 		http.Error(w, "Vocabulary not found", http.StatusNotFound)
 		return
 	}

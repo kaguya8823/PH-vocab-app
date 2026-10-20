@@ -37,3 +37,7 @@ func (u *VocabularyUseCase) UpdateVocabulary(id string, input domain.UpdateVocab
 		Comment:         input.Comment,
 	})
 }
+
+func (u *VocabularyUseCase) DeleteVocabulary(id string) (bool, error) {
+	return u.repository.Delete(id)
+}

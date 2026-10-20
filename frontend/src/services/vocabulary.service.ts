@@ -33,7 +33,6 @@ export const updateVocabulary = async (
     return response.data;
 }
 
-export const deleteVocabulary = async (id: number) => {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data;
-}
+export const deleteVocabulary = async (id: string): Promise<void> => {
+    await axios.delete(`${API_URL}/${id}`);
+};

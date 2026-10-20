@@ -10,6 +10,7 @@ type VocabularyRepository interface {
 	FindAll() ([]domain.Vocabulary, error)
 	Create(domain.Vocabulary) (domain.Vocabulary, error)
 	Update(string, domain.Vocabulary) (bool, error)
+	Delete(string) (bool, error)
 }
 
 type vocabularyRepository struct {
@@ -135,4 +136,17 @@ func (r *vocabularyRepository) Update(id string, vocabulary domain.Vocabulary) (
 		return false, err
 	}
 	return exists, nil
+}
+
+func (r *vocabularyRepository) Delete(id string) (bool, error) {
+	result, err := r.db.Exec("DELETE FROM vocabularies WHERE id = ?", id)
+	if err != nil {
+		return false, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return false, err
+	}
+	return rowsAffected > 0, nil
 }

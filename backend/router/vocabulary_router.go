@@ -21,5 +21,9 @@ func NewVocabularyRouter(vocabularyHandler *handler.VocabularyHandler) *mux.Rout
 		"/api/vocabularies/{id}",
 		vocabularyHandler.UpdateVocabulary,
 	).Methods(http.MethodPut)
+	router.HandleFunc(
+		"/api/vocabularies/{id}",
+		vocabularyHandler.DeleteVocabulary,
+	).Methods(http.MethodDelete)
 	return router
 }

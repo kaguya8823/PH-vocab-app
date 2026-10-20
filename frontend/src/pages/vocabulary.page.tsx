@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import {
     fetchVocabularies,
+    deleteVocabulary,
 } from '../services/vocabulary.service';
 
 import type { Vocabulary } from '../types/vocabulary';
@@ -54,9 +55,33 @@ const VocabularyPage = () => {
         };
     }, []);
 
-    // 編集・削除管理
+    // 編集管理
     const [editingVocabulary, setEditingVocabulary] =
         useState<Vocabulary | null>(null);
+
+    // 削除管理
+    const [deletingVocabularyId, setDeletingVocabularyId] =
+        useState<string | null>(null);
+    const [actionError, setActionError] = useState('');
+
+    const handleDelete = async (vocabulary: Vocabulary) => {
+        if (!window.confirm(`「${vocabulary.word}」を削除しますか？`)) {
+            return;
+        }
+
+        setDeletingVocabularyId(vocabulary.id);
+        setActionError('');
+        try {
+            await deleteVocabulary(vocabulary.id);
+            setVocabularies((current) =>
+                current.filter((item) => item.id !== vocabulary.id)
+            );
+        } catch {
+            setActionError('単語の削除に失敗しました。');
+        } finally {
+            setDeletingVocabularyId(null);
+        }
+    };
      
     // ソート条件の状態
     const [sortOrder, setSortOrder] = useState('word-asc');
@@ -120,6 +145,7 @@ const VocabularyPage = () => {
 
       {loading && <p>読み込み中...</p>}
       {error && <p role="alert">{error}</p>}
+      {actionError && <p role="alert">{actionError}</p>}
 
       {!loading && !error && vocabularies.length === 0 && (
         <p>まだ単語が登録されていません。</p>
@@ -145,12 +171,22 @@ const VocabularyPage = () => {
               onCancel={() => setEditingVocabulary(null)}
             />
           ) : (
+            <>
             <button
               type="button"
               onClick={() => setEditingVocabulary(vocabulary)}
             >
               編集
             </button>
+
+            <button
+                type='button'
+                onClick={() => handleDelete(vocabulary)}
+                disabled={deletingVocabularyId === vocabulary.id}
+            >
+                {deletingVocabularyId === vocabulary.id ? '削除中...' : '削除'}
+            </button>
+            </>
           )}
         </article>
       ))}
