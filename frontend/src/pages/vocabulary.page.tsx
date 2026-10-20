@@ -18,6 +18,10 @@ const VocabularyPage = () => {
     const [error, setError] = useState('');
     // 検索キーワードの状態
     const [keyword, setKeyword] = useState('');
+    // 品詞を絞り込む状態
+    const [selectedPartOfSpeech, setSelectedPartOfSpeech] =
+        useState('all');
+
 
     // APIから単語一覧を取得
     const loadVocabularies = useCallback(async () => {
@@ -87,12 +91,18 @@ const VocabularyPage = () => {
     const [sortOrder, setSortOrder] = useState('word-asc');
 
     const searchText = keyword.trim().toLowerCase();
-    const filteredVocabularies = vocabularies.filter((vocabulary) => (
-        vocabulary.word.toLowerCase().includes(searchText) ||
-        vocabulary.meaning.toLowerCase().includes(searchText) ||
-        (vocabulary.exampleSentence ?? '').toLowerCase().includes(searchText) ||
-        vocabulary.comment.toLowerCase().includes(searchText)
-    ));
+    const filteredVocabularies = vocabularies.filter((vocabulary) => {
+        const matchesKeyword =
+            vocabulary.word.toLowerCase().includes(searchText) ||
+            vocabulary.meaning.toLowerCase().includes(searchText) ||
+            (vocabulary.exampleSentence ?? '').toLowerCase().includes(searchText) ||
+            vocabulary.comment.toLowerCase().includes(searchText);
+        const matchesPartOfSpeech =
+            selectedPartOfSpeech === 'all' ||
+            vocabulary.partOfSpeech === selectedPartOfSpeech;
+
+        return matchesKeyword && matchesPartOfSpeech;
+    });
 
     const sortedVocabularies = [...filteredVocabularies].sort((a, b) => {
         switch (sortOrder) {
@@ -111,6 +121,7 @@ const VocabularyPage = () => {
         }
     });
 
+
     return (
         <main style={{ border:"1px solid red"}}>
       <h1 style={{fontSize:"30px", backgroundColor:"green", borderRadius:"10px", width:"250px", margin:"20px auto", padding:"10px 0", color:"white", fontWeight:"bold"}}>英単語帳</h1>
@@ -118,7 +129,7 @@ const VocabularyPage = () => {
         {/* 単語登録フォーム */}
         <VocabularyForm onCreated={loadVocabularies} />
 
-     {/* 検索・ソートフォーム */}   
+     {/* 検索・ソート・絞り込みフォーム */}
     <div style={{border:"1px solid blue", width:"350px", margin:"10px auto", }}>
       <input
         type="search"
@@ -138,6 +149,33 @@ const VocabularyPage = () => {
         <option value="newest">登録日が新しい順</option>
         <option value="oldest">登録日が古い順</option>
       </select>
+
+      <label htmlFor='part-of-speech-filter'>
+        品詞で絞り込む
+      </label>
+
+      <select
+        id='part-of-speech-filter'
+        value={selectedPartOfSpeech}
+        onChange={(event) =>
+            setSelectedPartOfSpeech(event.target.value)
+        }
+      >
+        <option value="all">すべて</option>
+        <option value="noun">名詞</option>
+        <option value="verb">動詞</option>
+        <option value="adjective">形容詞</option>
+        <option value="adverb">副詞</option>
+        <option value="preposition">前置詞</option>
+        <option value="pronoun">代名詞</option>
+        <option value="conjunction">接続詞</option>
+        <option value="interjection">間投詞</option>
+        <option value="enclitic">小辞</option>
+      </select>
+
+      <p>
+        表示件数：{sortedVocabularies.length}件
+      </p>
       </div>
 
         {/* 登録済み単語一覧 */}
@@ -149,6 +187,9 @@ const VocabularyPage = () => {
 
       {!loading && !error && vocabularies.length === 0 && (
         <p>まだ単語が登録されていません。</p>
+      )}
+      {!loading && !error && vocabularies.length > 0 && sortedVocabularies.length === 0 && (
+        <p>条件に一致する単語がありません。</p>
       )}
 
       {sortedVocabularies.map((vocabulary) => (
