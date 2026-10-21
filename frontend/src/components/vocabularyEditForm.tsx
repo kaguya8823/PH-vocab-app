@@ -1,3 +1,5 @@
+// 登録された単語を編集するフォームのコンポーネント
+
 import { useState } from "react";
 import type { SubmitEvent } from "react";
 
@@ -101,6 +103,7 @@ const VocabularyEditForm = ({
                 <option value="conjunction">接続詞</option>
                 <option value="interjection">間投詞</option>
                 <option value="enclitic">小辞</option>
+                <option value="other">その他</option>
             </select>
         </div>
 

@@ -1,3 +1,6 @@
+// 検索・並び替え・絞り込み・表示数のコンポーネント
+// 登録された単語も表示するコンポーネント
+
 import { useCallback, useEffect, useState } from 'react';
 
 import {
@@ -173,6 +176,7 @@ const VocabularyPage = () => {
         <option value="conjunction">接続詞</option>
         <option value="interjection">間投詞</option>
         <option value="enclitic">小辞</option>
+        <option value="other">その他</option>
       </select>
 
       <p>
@@ -198,10 +202,10 @@ const VocabularyPage = () => {
 
       {sortedVocabularies.map((vocabulary) => (
         <div style={{border:"2px solid black", width:"300px", margin:"10px auto", borderRadius:"10px", background:"#a3d4d2"}}>
-        <article
+        <article style={{background:"orange",}}
         key={vocabulary.id}>
           <h3 style={{backgroundColor:"white", fontWeight:"bold",}}>{vocabulary.word}</h3>
-          <p>{vocabulary.meaning}</p>
+          <p style={{marginTop:"-10px"}}>{vocabulary.meaning}</p>
           {vocabulary.exampleSentence && (
             <p>{vocabulary.exampleSentence}</p>
           )}
@@ -217,7 +221,7 @@ const VocabularyPage = () => {
               onCancel={() => setEditingVocabulary(null)}
             />
           ) : (
-            <>
+            <div style={{ margin:"20px 0 10px 0", padding:"5px 0", backgroundColor:"white"}}>
             <button style={{color:"green"}}
               type="button"
               onClick={() => setEditingVocabulary(vocabulary)}
@@ -232,7 +236,7 @@ const VocabularyPage = () => {
             >
                 {deletingVocabularyId === vocabulary.id ? '削除中...' : '削除'}
             </button>
-            </>
+            </div>
           )}
         </article>
         </div>

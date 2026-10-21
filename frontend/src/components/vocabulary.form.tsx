@@ -1,3 +1,5 @@
+// 単語を登録するフォームのコンポーネント
+
 import { useState } from "react";
 import type {SubmitEvent} from "react"
 import { createVocabulary } from "../services/vocabulary.service";
@@ -100,6 +102,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
                     <option value="conjunction">接続詞</option>
                     <option value="interjection">間投詞</option>
                     <option value="enclitic">小辞</option>
+                    <option value="other">その他</option>
                 </select>
             </label>
 
