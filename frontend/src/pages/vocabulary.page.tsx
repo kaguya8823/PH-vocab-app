@@ -123,14 +123,16 @@ const VocabularyPage = () => {
 
 
     return (
-        <main style={{ border:"1px solid red"}}>
-      <h1 style={{fontSize:"30px", backgroundColor:"green", borderRadius:"10px", width:"250px", margin:"20px auto", padding:"10px 0", color:"white", fontWeight:"bold"}}>英単語帳</h1>
+    <main style={{ border:"1px solid red"}}>
+    <h1 style={{fontSize:"30px", backgroundColor:"green", borderRadius:"10px", width:"250px", margin:"20px auto", padding:"10px 0", color:"white", fontWeight:"bold"}}>英単語帳</h1>
 
+    <div style={{display:"flex", gap:"5px", flexWrap:"wrap", height:"200px" }}>
         {/* 単語登録フォーム */}
-        <VocabularyForm onCreated={loadVocabularies} />
-
+        <div style={{width:"700px", padding:"20px", margin:"20px 0",}}>
+        <VocabularyForm onCreated={loadVocabularies}/>
+        </div>
      {/* 検索・ソート・絞り込みフォーム */}
-    <div style={{border:"1px solid blue", width:"350px", margin:"10px auto", }}>
+    <div style={{border:"1px solid blue", width:"350px", margin:"10px auto",}}>
       <input
         type="search"
         placeholder="キーワードで検索"
@@ -177,9 +179,11 @@ const VocabularyPage = () => {
         表示件数：{sortedVocabularies.length}件
       </p>
       </div>
+    </div>
 
         {/* 登録済み単語一覧 */}
       <h2>登録済みの単語</h2>
+    <div style={{border:"1px solid red", display:"flex", gap:"5px", flexWrap:"wrap",}}>
 
       {loading && <p>読み込み中...</p>}
       {error && <p role="alert">{error}</p>}
@@ -193,9 +197,10 @@ const VocabularyPage = () => {
       )}
 
       {sortedVocabularies.map((vocabulary) => (
+        <div style={{border:"2px solid black", width:"300px", margin:"10px auto", borderRadius:"10px", background:"#a3d4d2"}}>
         <article
         key={vocabulary.id}>
-          <h3>{vocabulary.word}</h3>
+          <h3 style={{backgroundColor:"white", fontWeight:"bold",}}>{vocabulary.word}</h3>
           <p>{vocabulary.meaning}</p>
           {vocabulary.exampleSentence && (
             <p>{vocabulary.exampleSentence}</p>
@@ -213,14 +218,14 @@ const VocabularyPage = () => {
             />
           ) : (
             <>
-            <button
+            <button style={{color:"green"}}
               type="button"
               onClick={() => setEditingVocabulary(vocabulary)}
             >
               編集
             </button>
 
-            <button
+            <button style={{color:"red"}}
                 type='button'
                 onClick={() => handleDelete(vocabulary)}
                 disabled={deletingVocabularyId === vocabulary.id}
@@ -230,7 +235,9 @@ const VocabularyPage = () => {
             </>
           )}
         </article>
+        </div>
       ))}
+    </div>
 
      
     </main>

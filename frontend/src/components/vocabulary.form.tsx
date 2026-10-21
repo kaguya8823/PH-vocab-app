@@ -55,7 +55,7 @@ const VocabularyForm = ({ onCreated }: Props) => {
     };
 
     return (
-        <div style={{border:"1px solid purple"}}>
+        <div style={{border:"1px solid purple",}}>
         <form onSubmit={submitHandler}>
             <h2>単語を登録</h2>
 
