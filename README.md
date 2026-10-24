@@ -21,6 +21,16 @@ npm install axios
 ## mysql
 docker exec -it PH_mysql mysql -uroot -p PH_vocab
 
+## mysql に、音声を録音、保存、再生するテーブルを作る
+上記のコマンドでmysql に入る
+show tables; で中身を見る。 作った状態では vocabularies のみ
+
+mysql> CREATE DATABASE vocabulary_audios; と入力
+
+mysql> show databases; で中をのぞくと、上記で作ったデータベースが作成されている。
+このデータベースの中に、音声を録音や保存、再生できる処理を作る。
+
+
 mysql の見方
 https://claude.ai/share/4288967e-b54e-4b52-8fa3-6c82d62d7cdf
 

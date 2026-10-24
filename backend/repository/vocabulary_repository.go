@@ -22,6 +22,7 @@ func NewVocabularyRepository(db *sql.DB) VocabularyRepository {
 }
 
 func EnsureSchema(db *sql.DB) error {
+	// 単語登録テーブル
 	_, err := db.Exec(`
 		CREATE TABLE IF NOT EXISTS vocabularies (
 			id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -33,7 +34,34 @@ func EnsureSchema(db *sql.DB) error {
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 	`)
-	return err
+	if err != nil {
+		return err
+	}
+
+	// 音声テーブル
+	_, err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS vocabulary_audios (
+			is BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+			vocabulary_id BIGINT UNSIGNED NOT NULL,
+			audio_type VARCHAR(20) NOT NULL,
+			file_path VARCHAR(500) NOT NULL,
+			mine_type VARCHAR(100) NOT NULL,
+			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+			UNIZUE KEY uq_vocabulary_audio_type
+				(vocabulary_id, audio_type),
+			
+			CONSTRAINT fk_vocabulary_audios_vocabulary
+				FOREIGN KEY (vocabulary_id)
+				REFERENCES 	vocabularies(id)
+				ON DELETE CASCADE
+		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+	`)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (r *vocabularyRepository) FindAll() ([]domain.Vocabulary, error) {
