@@ -13,7 +13,7 @@ type AudioHandler struct {
 	audioUseCase usecase.AudioUseCase
 }
 
-func NeaAudioHandler(audioUseCase usecase.AudioUseCase) *AudioHandler {
+func NewAudioHandler(audioUseCase usecase.AudioUseCase) *AudioHandler {
 	return &AudioHandler{
 		audioUseCase: audioUseCase,
 	}

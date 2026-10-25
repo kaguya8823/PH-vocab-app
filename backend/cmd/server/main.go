@@ -11,6 +11,7 @@ import (
 	"PH-vocab-app/backend/repository"
 	"PH-vocab-app/backend/router"
 	"PH-vocab-app/backend/usecase"
+
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -41,9 +42,21 @@ func main() {
 	vocabularyUseCase := usecase.NewVocabularyUseCase(vocabularyRepository)
 	vocabularyHandler := handler.NewVocabularyHandler(vocabularyUseCase)
 
+	// 音声用のRepositoryを作成
+	audioRepository := repository.NewAudioRepository(db)
+
+	// 音声用のUseCaseを作成
+	audioUseCase := usecase.NewAudioUseCase(audioRepository)
+
+	// 音声用のHandlerを作成
+	audioHandler := handler.NewAudioHandler(audioUseCase)
+
 	server := &http.Server{
-		Addr:              ":3002",
-		Handler:           router.NewVocabularyRouter(vocabularyHandler),
+		Addr: ":3002",
+		Handler: router.NewVocabularyRouter(
+			vocabularyHandler,
+			audioHandler,
+		),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

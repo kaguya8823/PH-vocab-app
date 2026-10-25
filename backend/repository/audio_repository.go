@@ -25,7 +25,7 @@ type audioRepository struct {
 	db *sql.DB
 }
 
-func NeaAudioRepository(db *sql.DB) AudioRepository {
+func NewAudioRepository(db *sql.DB) AudioRepository {
 	return &audioRepository{db: db}
 }
 
