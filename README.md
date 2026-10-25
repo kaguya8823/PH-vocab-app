@@ -1,5 +1,6 @@
 ## PH-vocab-app
 english-vocab-app をもとに、 prisma から golang に差し替えて作ります。
+単語や例文に録音機能を追加して、録画・再生・更新もできるようにします。
 
 ## Go をインストール
 backend 内
@@ -43,3 +44,5 @@ https://claude.ai/share/4288967e-b54e-4b52-8fa3-6c82d62d7cdf
 停止：docker compose down -v
 
 再起動：docker compose up -d --build backend frontend
+
+再ビルド：docker compose up -d --build
