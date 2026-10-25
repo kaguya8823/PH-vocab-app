@@ -20,6 +20,9 @@ services:
       - "3003:3002"
     environment:
       DB_DSN: root:${MYSQL_ROOT_PASSWORD:-root}@tcp(mysql:3306)/${MYSQL_DATABASE:-PH_vocab}?parseTime=true
+      AUDIO_STORAGE_DIR: /app/storage/audio
+    volumes:
+      - vocab_audio_data:/app/storage/audio
     depends_on:
       mysql:
         condition: service_healthy
@@ -49,3 +52,4 @@ services:
 
 volumes:
   mysql_data:
+  vocab_audio_data:
