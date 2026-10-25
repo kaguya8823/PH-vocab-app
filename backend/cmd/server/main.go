@@ -48,8 +48,22 @@ func main() {
 	// 音声用のUseCaseを作成
 	audioUseCase := usecase.NewAudioUseCase(audioRepository)
 
+	// 音声用のストレージを作成
+	audioStorageDir := os.Getenv("AUDIO_STORAGE_DIR")
+	if audioStorageDir == "" {
+		audioStorageDir = "./storage/audio"
+	}
+
+	audioStorage, err := usecase.NewAudioStorage(audioStorageDir)
+	if err != nil {
+		log.Fatalf("initialize audio storage: %v", err)
+	}
+
 	// 音声用のHandlerを作成
-	audioHandler := handler.NewAudioHandler(audioUseCase)
+	audioHandler := handler.NewAudioHandler(
+		audioUseCase,
+		audioStorage,
+	)
 
 	server := &http.Server{
 		Addr: ":3002",

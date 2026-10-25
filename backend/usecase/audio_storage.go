@@ -75,3 +75,29 @@ func (s *AudioStorage) Save(
 	ok = true
 	return filePath, nil
 }
+
+// 削除処理
+func (s *AudioStorage) Remove(filePath string) error {
+	absPath, err := filepath.Abs(filePath)
+	if err != nil {
+		return fmt.Errorf("resolve audio file path: %w", err)
+	}
+
+	relPath, err := filepath.Rel(s.baseDir, absPath)
+	if err != nil {
+		return fmt.Errorf("check audio file path: %w", err)
+	}
+
+	// 保存先ディレクトリの外にあるファイルは削除しない
+	if relPath == "." ||
+		relPath == ".." ||
+		strings.HasPrefix(relPath, ".."+string(os.PathSeparator)) {
+		return fmt.Errorf("audio fils is outside storage directory")
+	}
+
+	if err := os.Remove(absPath); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("remove audio file: %w", err)
+	}
+
+	return nil
+}
