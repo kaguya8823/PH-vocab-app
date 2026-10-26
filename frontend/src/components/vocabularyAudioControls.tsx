@@ -161,16 +161,17 @@ const VocabularyAudioControls = ({
     return (
         <section
             style={{
-                padding: '10px',
-                margin: '10px 0',
+                padding: '0',
+                margin: '0',
                 border: '1px solid #777',
                 borderRadius: '8px',
             }}
         >
-            <h4>{label}</h4>
+            <div style={{display: 'flex', gap: '120px'}}>
+            <h4 style={{margin:'0', padding: '4px 0 0 10px'}}>{label}</h4>
 
             {!recording ? (
-                <button
+                <button style={{marginTop:'5px'}}
                     type="button"
                     onClick={startRecording}
                     disabled={saving}
@@ -188,6 +189,7 @@ const VocabularyAudioControls = ({
 
             {recording && <p>録音中・・・</p>}
             {saving && <p>音声を保存しています・・・</p>}
+            </div>
 
             <div style={{ marginTop: '8px'}}>
                 <audio
