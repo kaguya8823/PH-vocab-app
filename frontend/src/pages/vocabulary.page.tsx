@@ -13,6 +13,8 @@ import type { Vocabulary } from '../types/vocabulary';
 import VocabularyForm from '../components/vocabulary.form';
 import VocabularyEditForm from '../components/vocabularyEditForm';
 
+import VocabularyAudioControls from '../components/vocabularyAudioControls';
+
 const VocabularyPage = () => {
     // 単語一覧の状態
     const [vocabularies, setVocabularies] = useState<Vocabulary[]>([]);
@@ -209,6 +211,18 @@ const VocabularyPage = () => {
           {vocabulary.exampleSentence && (
             <p>{vocabulary.exampleSentence}</p>
           )}
+          {/* 音声録音コード */}
+          <VocabularyAudioControls
+             vocabularyId={vocabulary.id}
+             audioType="word"
+             label="単語の音声"
+          />
+          <VocabularyAudioControls
+             vocabularyId={vocabulary.id}
+             audioType="example"
+             label="例文の音声"
+          />
+          {/* 音声録音コード:終了 */}
           <p>品詞：{vocabulary.partOfSpeech}</p>
           <p>コメント：{vocabulary.comment || 'なし'}</p>
           {editingVocabulary?.id === vocabulary.id ? (
