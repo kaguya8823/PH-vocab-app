@@ -101,3 +101,41 @@ func (s *AudioStorage) Remove(filePath string) error {
 
 	return nil
 }
+
+// 録音→保存→再生　を可能にするAPI
+func (s *AudioStorage) Open(filePath string) (*os.File, os.FileInfo, error) {
+	absPath, err := filepath.Abs(filePath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("resolve audio file path: %w", err)
+	}
+
+	relPath, err := filepath.Rel(s.baseDir, absPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("check audio file path: %w", err)
+	}
+
+	// 保存先ディレクトリの外にあるファイルは開かない
+	if relPath == "." ||
+		relPath == ".." ||
+		strings.HasPrefix(relPath, ".."+string(os.PathSeparator)) {
+		return nil, nil, fmt.Errorf("audio file is outside storage directory")
+	}
+
+	file, err := os.Open(absPath)
+	if err != nil {
+		return nil, nil, fmt.Errorf("open audio file: %w", err)
+	}
+
+	info, err := file.Stat()
+	if err != nil {
+		_ = file.Close()
+		return nil, nil, fmt.Errorf("read audio file information: %w", err)
+	}
+
+	if !info.Mode().IsRegular() {
+		_ = file.Close()
+		return nil, nil, fmt.Errorf("audio path is not a regular file")
+	}
+
+	return file, info, nil
+}

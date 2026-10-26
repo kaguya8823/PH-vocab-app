@@ -46,7 +46,7 @@ func getVocabularyIDFromAudioPath(r *http.Request) string {
 	return parts[2]
 }
 
-// 追記箇所
+// 音声ファイルの形式
 func audioFormat(contentType string) (string, string, error) {
 	mediaType, _, err := mime.ParseMediaType(contentType)
 	if err != nil {
@@ -177,24 +177,46 @@ func (h *AudioHandler) Find(w http.ResponseWriter, r *http.Request) {
 	}
 
 	audioType := r.URL.Query().Get("type")
+	if audioType != "word" && audioType != "example" {
+		http.Error(w, "type must be word or example", http.StatusBadRequest)
+		return
+	}
 
+	// MySQL から音声情報を取得する
 	audio, err := h.audioUseCase.FindByVocabularyIDAndType(
 		vocabularyID,
 		audioType,
 	)
 	if err != nil {
-		http.Error(w, "invalid audio request", http.StatusBadRequest)
+		http.Error(w, "filed to retrieve audio information", http.StatusInternalServerError)
 		return
 	}
+
 	if audio == nil {
 		http.Error(w, "audio not found", http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(audio); err != nil {
+	// 保存済みの音声ファイルを開く
+	file, info, err := h.audioStorage.Open(audio.FilePath)
+	if err != nil {
+		http.Error(w, "audio file not found", http.StatusNotFound)
 		return
 	}
+	defer file.Close()
+
+	w.Header().Set("Content-Type", audio.MimeType)
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cache-Control", "no-store")
+
+	// 音声データを返す。ブラウザの再位置指定にも対応
+	http.ServeContent(
+		w,
+		r,
+		filepath.Base(audio.FilePath),
+		info.ModTime(),
+		file,
+	)
 }
 
 // Keep filepath imported only if you use it for additional path checks later.
