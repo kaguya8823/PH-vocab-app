@@ -47,6 +47,8 @@ func EnsureSchema(db *sql.DB) error {
 			file_path VARCHAR(500) NOT NULL,
 			mime_type VARCHAR(100) NOT NULL,
 			created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+			
+			is_favorite TINYINT(1) NOT NULL DEFAULT 0,
 
 			UNIQUE KEY uq_vocabulary_audio_type
 				(vocabulary_id, audio_type),
@@ -57,8 +59,29 @@ func EnsureSchema(db *sql.DB) error {
 				ON DELETE CASCADE
 		) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 	`)
+
+	// 以下、既存の音声テーブルにお気に入り列を追加する処理
+	var columnCount int
+
+	err = db.QueryRow(`
+		SELECT COUNT(*)
+		FROM INFORMATION_SCHEMA.COLUMNS
+		WHERE TABLE_SCHEMA = DATABASE()
+			AND TABLE_NAME = "vocabulary_audios"
+			AND COLUMN_NAME = "is_favorate"
+	`).Scan(&columnCount)
 	if err != nil {
 		return err
+	}
+
+	if columnCount == 0 {
+		_, err = db.Exec(`
+			ALTER TABLE vocabulary_audios
+			ADD COLUMN is_facorite TINYINT(1) NOT NULL DEFAULT 0
+		`)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
