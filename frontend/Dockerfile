@@ -1,7 +1,9 @@
 ## フロントエンド用の Dockerfile の構造
-FROM node:22
+FROM node:24.22.1
 
 WORKDIR /src
+
+RUN npm install --global npm@11.19.1
 
 COPY package*.json ./
 
