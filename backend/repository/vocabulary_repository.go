@@ -68,7 +68,7 @@ func EnsureSchema(db *sql.DB) error {
 		FROM INFORMATION_SCHEMA.COLUMNS
 		WHERE TABLE_SCHEMA = DATABASE()
 			AND TABLE_NAME = "vocabulary_audios"
-			AND COLUMN_NAME = "is_favorate"
+			AND COLUMN_NAME = "is_favorite"
 	`).Scan(&columnCount)
 	if err != nil {
 		return err
@@ -77,7 +77,7 @@ func EnsureSchema(db *sql.DB) error {
 	if columnCount == 0 {
 		_, err = db.Exec(`
 			ALTER TABLE vocabulary_audios
-			ADD COLUMN is_facorite TINYINT(1) NOT NULL DEFAULT 0
+			ADD COLUMN is_favorite TINYINT(1) NOT NULL DEFAULT 0
 		`)
 		if err != nil {
 			return err

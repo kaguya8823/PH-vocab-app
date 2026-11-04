@@ -165,13 +165,22 @@ const VocabularyAudioControls = ({
                 margin: '0',
                 border: '1px solid #777',
                 borderRadius: '8px',
+                boxSizing: 'border-box',
+                width: '100%',
             }}
         >
-            <div style={{display: 'flex', gap: '120px'}}>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                }}
+            >
             <h4 style={{margin:'0', padding: '4px 0 0 10px'}}>{label}</h4>
 
             {!recording ? (
-                <button style={{marginTop:'5px'}}
+                <button style={{marginTop:'0', flexShrink: 0}}
                     type="button"
                     onClick={startRecording}
                     disabled={saving}
@@ -179,7 +188,7 @@ const VocabularyAudioControls = ({
                     {saving ? '保存中・・・' : '録音開始'}
                 </button>
             ) : (
-                <button
+                <button style={{marginTop:'0', flexShrink: 0}}
                     type="button"
                     onClick={stopRecording}
                 >
@@ -187,8 +196,8 @@ const VocabularyAudioControls = ({
                 </button>
             )}
 
-            {recording && <p>録音中・・・</p>}
-            {saving && <p>音声を保存しています・・・</p>}
+            {recording && <p style={{flex: '1 1 100%', margin: 0}}>録音中・・・</p>}
+            {saving && <p style={{flex: '1 1 100%', margin: 0}}>音声を保存しています・・・</p>}
             </div>
 
             <div style={{ marginTop: '8px'}}>
@@ -197,6 +206,7 @@ const VocabularyAudioControls = ({
                     controls
                     preload="none"
                     src={audioUrl}
+                    style={{display: 'block', maxWidth: '100%'}}
                 >
                     お使いのブラウザは音声再生に対応していません。
                 </audio>
