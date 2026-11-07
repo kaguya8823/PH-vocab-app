@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"mime"
 	"net/http"
@@ -221,3 +223,63 @@ func (h *AudioHandler) Find(w http.ResponseWriter, r *http.Request) {
 
 // Keep filepath imported only if you use it for additional path checks later.
 var _ = filepath.Base
+
+// ↓音声ファイルをオンオフするAPI
+type FavoriteRequest struct {
+	AudioType  string `json: "audio_type"`
+	IsFacorite bool   `json: "is_favorite"`
+}
+
+// SetFavoriteは音声のお気に入り状態を変更する
+func (h *AudioHandler) SetFavorite(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	vocabularyID := getVocabularyIDFromAudioPath(r)
+	if vocabularyID == "" {
+		http.Error(w, "invalid vocabulary ID path", http.StatusBadRequest)
+		return
+	}
+
+	// JSON リクエストを読み込む
+	var request FavoriteRequest
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "invalid JSON request", http.StatusBadRequest)
+		return
+	}
+
+	if request.AudioType != "word" && request.AudioType != "example" {
+		http.Error(w, "audio_type must be word or example", http.StatusBadRequest)
+		return
+	}
+
+	// 音声のお気に入り状態を更新する
+	err := h.audioUseCase.SetFavorite(
+		vocabularyID,
+		request.AudioType,
+		request.IsFacorite,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "audio not found", http.StatusNotFound)
+			return
+		}
+
+		http.Error(w, "failed to update favorite status", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"message":     "favorite status update",
+		"is_favorite": request.IsFacorite,
+	})
+}

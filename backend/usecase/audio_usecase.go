@@ -10,10 +10,18 @@ import (
 
 type AudioUseCase interface {
 	Save(audio repository.Audio) error
+
 	FindByVocabularyIDAndType(
 		vocabularyID string,
 		audioType string,
 	) (*repository.Audio, error)
+
+	// 他の音声関連のユースケースメソッドをここに追加できます
+	SetFavorite(
+		vocabularyID string,
+		audioType string,
+		isFavorite bool,
+	) error
 }
 
 type audioUseCase struct {
@@ -80,5 +88,36 @@ func (u *audioUseCase) FindByVocabularyIDAndType(
 	return u.audioRepository.FindByVocabularyIDAndType(
 		vocabularyID,
 		audioType,
+	)
+}
+
+// 単語IDと音声の種類から音声情報を取得し、お気に入り状態を更新
+func (u *audioUseCase) SetFavorite(
+	vocabularyID string,
+	audioType string,
+	isFavorite bool,
+) error {
+	// IDの前後に空白がある場合は削除
+	vocabularyID = strings.TrimSpace(vocabularyID)
+
+	// 単語IDが正しいか確認
+	id, err := strconv.ParseUint(vocabularyID, 10, 64)
+	if err != nil || id == 0 {
+		return fmt.Errorf("invalid vocabulary ID")
+	}
+
+	// 音声の種類を確認
+	switch audioType {
+	case "word", "example":
+		// 許可された種類なら続行
+	default:
+		return fmt.Errorf("invalid audio type: must be word or example")
+	}
+
+	// Repository にお気に入り状態の更新を依頼
+	return u.audioRepository.SetFavorite(
+		vocabularyID,
+		audioType,
+		isFavorite,
 	)
 }

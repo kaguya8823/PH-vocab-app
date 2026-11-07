@@ -38,7 +38,7 @@ func NewVocabularyRouter(
 		vocabularyHandler.DeleteVocabulary,
 	).Methods(http.MethodDelete)
 
-	// 音声情報の保存
+	// ↓音声情報の保存
 	router.HandleFunc(
 		"/api/vocabulary/{id}/audio",
 		audioHandler.Save,
@@ -49,6 +49,12 @@ func NewVocabularyRouter(
 		"/api/vocabulary/{id}/audio",
 		audioHandler.Find,
 	).Methods(http.MethodGet)
+
+	// 音声情報のお気に入りにかかわる更新
+	router.HandleFunc(
+		"/api/vocabulary/{id}/audio/favorite",
+		audioHandler.SetFavorite,
+	).Methods(http.MethodPut)
 
 	return router
 }
