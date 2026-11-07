@@ -38,14 +38,33 @@ func getVocabularyIDFromAudioPath(r *http.Request) string {
 	path := strings.Trim(r.URL.Path, "/")
 	parts := strings.Split(path, "/")
 
-	if len(parts) != 4 ||
-		parts[0] != "api" ||
-		parts[1] != "vocabulary" ||
-		parts[3] != "audio" {
-		return ""
+	// 通常の音声API
+	if len(parts) == 4 &&
+		parts[0] == "api" &&
+		parts[1] == "vocabulary" &&
+		parts[3] == "audio" {
+		return parts[2]
 	}
 
-	return parts[2]
+	// お気に入りAPI
+	if len(parts) == 5 &&
+		parts[0] == "api" &&
+		parts[1] == "vocabulary" &&
+		parts[3] == "audio" &&
+		parts[4] == "favorite" {
+		return parts[2]
+	}
+
+	// 音声メタデータAPI
+	if len(parts) == 5 &&
+		parts[0] == "api" &&
+		parts[1] == "vocabulary" &&
+		parts[3] == "audio" &&
+		parts[4] == "metadata" {
+		return parts[2]
+	}
+
+	return ""
 }
 
 // 音声ファイルの形式
@@ -226,8 +245,8 @@ var _ = filepath.Base
 
 // ↓音声ファイルをオンオフするAPI
 type FavoriteRequest struct {
-	AudioType  string `json: "audio_type"`
-	IsFacorite bool   `json: "is_favorite"`
+	AudioType  string `json:"audio_type"`
+	IsFavorite bool   `json:"is_favorite"`
 }
 
 // SetFavoriteは音声のお気に入り状態を変更する
@@ -263,7 +282,7 @@ func (h *AudioHandler) SetFavorite(
 	err := h.audioUseCase.SetFavorite(
 		vocabularyID,
 		request.AudioType,
-		request.IsFacorite,
+		request.IsFavorite,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -280,6 +299,64 @@ func (h *AudioHandler) SetFavorite(
 
 	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"message":     "favorite status update",
-		"is_favorite": request.IsFacorite,
+		"is_favorite": request.IsFavorite,
 	})
+}
+
+// 音声情報を返すためのレスポンス
+type AudioMetadataResponse struct {
+	VocabularyID string `json:"vocabulary_id"`
+	AudioType    string `json:"audio_type"`
+	FilePath     string `json:"file_path"`
+	MimeType     string `json:"mime_type"`
+	IsFavorite   bool   `json:"is_favorite"`
+}
+
+// Metadataは音声のメタデータを返す
+func (h *AudioHandler) Metadata(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	vocabularyID := getVocabularyIDFromAudioPath(r)
+	if vocabularyID == "" {
+		http.Error(w, "invalid vocabulary ID path", http.StatusBadRequest)
+		return
+	}
+
+	audioType := r.URL.Query().Get("type")
+	if audioType != "word" && audioType != "example" {
+		http.Error(w, "type must be word or example", http.StatusBadRequest)
+		return
+	}
+
+	audio, err := h.audioUseCase.FindByVocabularyIDAndType(
+		vocabularyID,
+		audioType,
+	)
+	if err != nil {
+		http.Error(w, "failed to retrieve audio information", http.StatusInternalServerError)
+		return
+	}
+
+	if audio == nil {
+		http.Error(w, "audio not found", http.StatusNotFound)
+		return
+	}
+
+	response := AudioMetadataResponse{
+		VocabularyID: audio.VocabularyID,
+		AudioType:    audio.AudioType,
+		MimeType:     audio.MimeType,
+		IsFavorite:   audio.IsFavorite,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	_ = json.NewEncoder(w).Encode(response)
 }

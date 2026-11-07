@@ -56,5 +56,11 @@ func NewVocabularyRouter(
 		audioHandler.SetFavorite,
 	).Methods(http.MethodPut)
 
+	// 音声情報のメタデータ取得
+	router.HandleFunc(
+		"/api/vocabulary/{id}/audio/metadata",
+		audioHandler.Metadata,
+	).Methods(http.MethodGet)
+
 	return router
 }
