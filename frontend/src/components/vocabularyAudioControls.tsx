@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import {
     getVocabularyAudioUrl,
+    getVocabularyAudioMetadata,
+    setVocabularyAudioFavorite,
     uploadVocabularyAudio,
 } from '../services/vocabulary.service';
 import type { AudioType } from '../services/vocabulary.service';
+import { isAxiosError } from 'axios';
 
 type Props = {
     vocabularyId: string;
@@ -25,6 +28,9 @@ const VocabularyAudioControls = ({
     const [audioVersion, setAudioVersion] = useState(0);
     const [error, setError] = useState('');
 
+    const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteLoading, setFavoriteLoading] = useState(true);
+
     useEffect(() => {
         return () => {
             const recorder = recorderRef.current;
@@ -42,8 +48,50 @@ const VocabularyAudioControls = ({
         };
     }, []);
 
+    // お気に入り音声のメタデータを取得
+    useEffect(() => {
+        let cancelled = false;
+
+        const loadMetadata = async () => {
+            try {
+                const metadata = await getVocabularyAudioMetadata(
+                    vocabularyId,
+                    audioType,
+                );
+
+                if (!cancelled) {
+                    setIsFavorite(metadata.is_favorite);
+                }
+            } catch(err) {
+                if (!cancelled) {
+                    // 音声がまだ登録されていない場合
+                    if (isAxiosError(err) && err.response?.status === 404) {
+                        setIsFavorite(false);
+                    } else {
+                        setError('音声情報の取得に失敗しました。');
+                    }
+                }
+            } finally {
+                if (!cancelled) {
+                    setFavoriteLoading(false);
+                }
+            }
+        };
+
+        void loadMetadata();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [vocabularyId, audioType, audioVersion]);
+
     const startRecording = async () => {
         setError('');
+
+        if (isFavorite) {
+            setError('お気に入り登録中の音声は録音できません。');
+            return;
+        }
 
         if (!navigator.mediaDevices?.getUserMedia ||
             typeof MediaRecorder === 'undefined') {
@@ -121,6 +169,7 @@ const VocabularyAudioControls = ({
                         blob,
                     );
 
+                    setFavoriteLoading(true);
                     setAudioVersion((version) => version + 1);
                 } catch {
                     setError(
@@ -154,6 +203,28 @@ const VocabularyAudioControls = ({
         }
     };
 
+    // お気に入りボタンの処理
+    const toggleFavorite = async () => {
+        setFavoriteLoading(true);
+        setError('');
+
+        const nextFavorite = !isFavorite;
+
+        try {
+            await setVocabularyAudioFavorite(
+                vocabularyId,
+                audioType,
+                nextFavorite,
+            );
+
+            setIsFavorite(nextFavorite);
+        } catch {
+            setError('お気に入り状態の更新に失敗しました。');
+        } finally {
+            setFavoriteLoading(false);
+        }
+    };
+
     const audioUrl =
         `${getVocabularyAudioUrl(vocabularyId, audioType)}` +
         `&v=${audioVersion}`;
@@ -179,13 +250,27 @@ const VocabularyAudioControls = ({
             >
             <h4 style={{margin:'0', padding: '4px 0 0 10px'}}>{label}</h4>
 
+            {/* お気に入りボタンの表示 */}
+            <button
+                type="button"
+                onClick={toggleFavorite}
+                disabled={favoriteLoading || recording || saving }
+                style={{marginTop:'0', flexShrink: 0}}
+            >
+                {favoriteLoading
+                     ? '更新中・・・'
+                     : isFavorite
+                        ? '★ お気に入り解除'
+                        : '☆ お気に入り登録'}
+            </button>
+
             {!recording ? (
                 <button style={{marginTop:'0', flexShrink: 0}}
                     type="button"
                     onClick={startRecording}
-                    disabled={saving}
+                    disabled={saving || isFavorite}
                 >
-                    {saving ? '保存中・・・' : '録音開始'}
+                    {isFavorite ? 'お気に入り保護中' : saving ? '保存中・・・' : '録音開始'}
                 </button>
             ) : (
                 <button style={{marginTop:'0', flexShrink: 0}}

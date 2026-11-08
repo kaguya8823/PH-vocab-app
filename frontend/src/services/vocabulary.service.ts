@@ -78,3 +78,43 @@ export const getVocabularyAudioUrl = (
 ): string => {
     return `/api/vocabulary/${vocabularyId}/audio?type=${audioType}`;
 }
+
+// お気に入り音声のメタデータ定義
+export interface AudioMetadata {
+    vocabularyId: string;
+    audio_type:   AudioType;
+    mime_type:    string;
+    is_favorite:  boolean;
+}
+
+// お気に入り音声のメタデータを取得
+export const getVocabularyAudioMetadata = async (
+    vocabularyId: string,
+    audioType:    AudioType,
+): Promise<AudioMetadata> => {
+    const response = await axios.get<AudioMetadata>(
+        `/api/vocabulary/${vocabularyId}/audio/metadata`,
+        {
+            params: {
+                type: audioType,
+            },
+        },
+    );
+
+    return response.data;
+};
+
+// お気に入り音声のメタデータを更新
+export const setVocabularyAudioFavorite = async (
+    vocabularyId: string,
+    audioType:    AudioType,
+    isFavorite:   boolean,
+): Promise<void> => {
+    await axios.put(
+        `/api/vocabulary/${vocabularyId}/audio/favorite`,
+        {
+            audio_type:  audioType,
+            is_favorite: isFavorite,
+        },
+    );
+};
