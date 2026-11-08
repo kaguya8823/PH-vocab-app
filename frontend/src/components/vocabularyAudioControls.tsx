@@ -258,10 +258,10 @@ const VocabularyAudioControls = ({
                 style={{marginTop:'0', flexShrink: 0}}
             >
                 {favoriteLoading
-                     ? '更新中・・・'
+                     ? 'Loading,,,'
                      : isFavorite
-                        ? '★ お気に入り解除'
-                        : '☆ お気に入り登録'}
+                        ? '★ UnFAV'
+                        : '☆ FAV'}
             </button>
 
             {!recording ? (
@@ -270,19 +270,19 @@ const VocabularyAudioControls = ({
                     onClick={startRecording}
                     disabled={saving || isFavorite}
                 >
-                    {isFavorite ? 'お気に入り保護中' : saving ? '保存中・・・' : '録音開始'}
+                    {isFavorite ? 'LOCK' : saving ? 'Saving' : 'REC'}
                 </button>
             ) : (
                 <button style={{marginTop:'0', flexShrink: 0}}
                     type="button"
                     onClick={stopRecording}
                 >
-                    録音停止・保存
+                    STOP
                 </button>
             )}
 
-            {recording && <p style={{flex: '1 1 100%', margin: 0}}>録音中・・・</p>}
-            {saving && <p style={{flex: '1 1 100%', margin: 0}}>音声を保存しています・・・</p>}
+            {recording && <p style={{flex: '1 1 100%', margin: 0}}>Recording</p>}
+            {saving && <p style={{flex: '1 1 100%', margin: 0}}>Saving audio...</p>}
             </div>
 
             <div style={{ marginTop: '8px'}}>
