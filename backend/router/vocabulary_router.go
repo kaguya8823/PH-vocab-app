@@ -62,5 +62,11 @@ func NewVocabularyRouter(
 		audioHandler.Metadata,
 	).Methods(http.MethodGet)
 
+	// 音声情報の削除
+	router.HandleFunc(
+		"/api/vocabulary/{id}/audio",
+		audioHandler.Delete,
+	).Methods(http.MethodDelete)
+
 	return router
 }

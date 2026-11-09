@@ -22,6 +22,11 @@ type AudioUseCase interface {
 		audioType string,
 		isFavorite bool,
 	) error
+
+	Delete(
+		vocabularyID string,
+		audioType string,
+	) (*repository.Audio, error)
 }
 
 type audioUseCase struct {
@@ -120,4 +125,25 @@ func (u *audioUseCase) SetFavorite(
 		audioType,
 		isFavorite,
 	)
+}
+
+// 単語IDと音声の種類を検証して音声情報を削除
+func (u *audioUseCase) Delete(
+	vocabularyID string,
+	audioType string,
+) (*repository.Audio, error) {
+	vocabularyID = strings.TrimSpace(vocabularyID)
+
+	id, err := strconv.ParseUint(vocabularyID, 10, 64)
+	if err != nil || id == 0 {
+		return nil, fmt.Errorf("invalid vocabulary ID")
+	}
+
+	switch audioType {
+	case "word", "example":
+	default:
+		return nil, fmt.Errorf("invalid audio type: must be word or example")
+	}
+
+	return u.audioRepository.Delete(vocabularyID, audioType)
 }

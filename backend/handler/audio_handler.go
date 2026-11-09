@@ -360,3 +360,68 @@ func (h *AudioHandler) Metadata(
 
 	_ = json.NewEncoder(w).Encode(response)
 }
+
+// Deleteされた音声を削除する
+func (h *AudioHandler) Delete(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	vocabularyID := getVocabularyIDFromAudioPath(r)
+	if vocabularyID == "" {
+		http.Error(w, "invalid vocabulary ID path", http.StatusBadRequest)
+		return
+	}
+
+	audioType := r.URL.Query().Get("type")
+	if audioType != "word" && audioType != "example" {
+		http.Error(w, "type must be word or example", http.StatusBadRequest)
+		return
+	}
+
+	audio, err := h.audioUseCase.Delete(
+		vocabularyID,
+		audioType,
+	)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Error(w, "audio not found", http.StatusNotFound)
+			return
+		}
+
+		if errors.Is(err, repository.ErrAudioIsFavorite) {
+			http.Error(
+				w,
+				"favorite audio cannot be deleted",
+				http.StatusConflict,
+			)
+			return
+		}
+
+		http.Error(w, "failed to delete audio", http.StatusInternalServerError)
+		return
+	}
+
+	// DB削除成功後、時差愛の音声ファイルを削除
+	if err := h.audioStorage.Remove(audio.FilePath); err != nil {
+		fmt.Fprintf(os.Stderr, "remove audio file: %v\n", err)
+		http.Error(
+			w,
+			"audio metadata deleted but file cleanup failed",
+			http.StatusInternalServerError,
+		)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	_ = json.NewEncoder(w).Encode(map[string]string{
+		"message": "audio deleted successfully",
+	})
+}
