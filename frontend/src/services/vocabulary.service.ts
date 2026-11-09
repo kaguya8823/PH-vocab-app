@@ -118,3 +118,18 @@ export const setVocabularyAudioFavorite = async (
         },
     );
 };
+
+// お気に入り音声のメタデータを削除
+export const deleteVocabularyAudio = async (
+    vocabularyId: string,
+    audioType:    AudioType,
+): Promise<void> => {
+    await axios.delete(
+        `/api/vocabulary/${vocabularyId}/audio`,
+        {
+            params: {
+                type: audioType,
+            },
+        },
+    );
+};

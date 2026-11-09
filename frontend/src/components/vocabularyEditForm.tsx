@@ -6,6 +6,8 @@ import type { SubmitEvent } from "react";
 import type { Vocabulary } from "../types/vocabulary";
 import { updateVocabulary } from "../services/vocabulary.service";
 
+import VocabularyAudioManagement from "./vocabularyAudioManagement";
+
 type VocabularyEditFormProps = {
     vocabulary: Vocabulary;
     onUpdated: () => void;
@@ -115,6 +117,10 @@ const VocabularyEditForm = ({
                 onChange={(event) => setComment(event.target.value)}
              />
         </div>
+
+        <VocabularyAudioManagement
+            vocabularyId={vocabulary.id}
+         />
 
         {error && <p role="alert">{error}</p>}
 
