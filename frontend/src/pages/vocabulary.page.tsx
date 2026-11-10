@@ -68,6 +68,20 @@ const VocabularyPage = () => {
     const [editingVocabulary, setEditingVocabulary] =
         useState<Vocabulary | null>(null);
 
+    // ★編集がうまく機能しなかったので処理を追加
+    // 音声コントロールの再読み込み管理
+    const [audioRefreshVersions, setAudioRefreshVersions] =
+     useState<Record<string, number>>({});
+    
+    // 指定した単語の音声コントロールを再読み込みする
+    const refreshAudioControls = (vocabularyId: string) => {
+        setAudioRefreshVersions((current) => ({
+            ...current,
+            [vocabularyId]: (current[vocabularyId] ?? 0) + 1,
+        }));
+    }
+    // ★----------------------------------------------
+
     // 削除管理
     const [deletingVocabularyId, setDeletingVocabularyId] =
         useState<string | null>(null);
@@ -213,11 +227,13 @@ const VocabularyPage = () => {
           )}
           {/* 音声録音コード */}
           <VocabularyAudioControls
+             key={`word-${vocabulary.id}-${audioRefreshVersions[vocabulary.id] ?? 0}`}
              vocabularyId={vocabulary.id}
              audioType="word"
              label="単語の音声"
           />
           <VocabularyAudioControls
+             key={`example-${vocabulary.id}-${audioRefreshVersions[vocabulary.id] ?? 0}`}
              vocabularyId={vocabulary.id}
              audioType="example"
              label="例文の音声"
@@ -230,9 +246,13 @@ const VocabularyPage = () => {
               vocabulary={editingVocabulary}
               onUpdated={async () => {
                 await loadVocabularies();
+                refreshAudioControls(vocabulary.id);
                 setEditingVocabulary(null);
               }}
-              onCancel={() => setEditingVocabulary(null)}
+              onCancel={() => {
+                refreshAudioControls(vocabulary.id);
+                setEditingVocabulary(null);
+              }}
             />
           ) : (
             <div style={{ margin:"20px 0 10px 0", padding:"5px 0", backgroundColor:"white"}}>
